@@ -102,7 +102,13 @@
         .papers-list { padding: 1rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 14px; }
         .paper-item { display: flex; gap: 12px; padding: 0.7rem; background: #fefefe; border-radius: 1rem; border: 1px solid #edf2f7; }
         .paper-num { font-weight: 700; background: #eef2ff; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 30px; font-size: 0.8rem; }
-        .pdf-btn { background: #1e4668; color: white; padding: 0.2rem 0.9rem; border-radius: 30px; font-size: 0.7rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .paper-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+        .pdf-btn, .note-btn { color: white; padding: 0.2rem 0.9rem; border-radius: 30px; font-size: 0.7rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; font-family: inherit; font-weight: 500; transition: opacity 0.15s; }
+        .pdf-btn { background: #1e4668; }
+        .note-btn { background: #15803d; }
+        .note-btn.translate { background: #6366f1; }
+        .note-btn.external { background: #7c3aed; }
+        .pdf-btn:hover, .note-btn:hover { opacity: 0.85; }
 
         /* 架构卡片网格 */
         .arch-grid {
@@ -173,7 +179,7 @@
 <script>
     // ----------------------------- 论文数据库 (真实链接) ---------------------------------
     const papersDB = {
-        "16": { title: "A Survey on LLM-based Autonomous Agents", arxivId: "2308.11432", year: "2023", desc: "全面梳理智能体架构、记忆、规划。" },
+        "16": { title: "A Survey on LLM-based Autonomous Agents", arxivId: "2308.11432", year: "2023", desc: "全面梳理智能体架构、记忆、规划。", notes: { summary: "notes/paper-16-llm-agents-survey.html", translate: "https://www.kdocs.cn/l/ci8Xd7ILpmvL" } },
         "17": { title: "The Rise of LLM Agents: A Survey", arxivId: "2309.07864", year: "2023", desc: "术语体系+评估基准，建立整体框架。" },
         "1": { title: "Chain-of-Thought Prompting", arxivId: "2201.11903", year: "2022", desc: "思维链CoT，开启显式推理。" },
         "2": { title: "ReAct: Reasoning + Acting", arxivId: "2210.03629", year: "2022", desc: "推理行动交织，Agent基础循环。" },
@@ -192,6 +198,14 @@
         "15": { title: "SeeAct", arxivId: "2401.03421", year: "2024", desc: "视觉驱动GUI智能体。" }
     };
     function getPdfUrl(id) { return `https://arxiv.org/pdf/${papersDB[id].arxivId}.pdf`; }
+    function renderPaperActions(pid, p) {
+        let html = `<a href="${getPdfUrl(pid)}" target="_blank" class="pdf-btn"><i class="fas fa-file-pdf"></i> PDF</a>`;
+        if (p.notes) {
+            if (p.notes.summary) html += `<a href="${p.notes.summary}" target="_blank" class="note-btn"><i class="fas fa-book-open"></i> 总结</a>`;
+            if (p.notes.translate) html += `<a href="${p.notes.translate}" target="_blank" class="note-btn translate"><i class="fas fa-language"></i> 翻译</a>`;
+        }
+        return `<div class="paper-actions">${html}</div>`;
+    }
     const phases = [
         { order:"第1阶段", icon:"fa-map", title:"先看地图 · 综述", subtitle:"建立整体框架与术语体系", papers:["16","17"], color:"#3b82f6" },
         { order:"第2阶段", icon:"fa-brain", title:"理解大脑 · 推理基石", subtitle:"CoT → ReAct → ToT", papers:["1","2","3"], color:"#8b5cf6" },
@@ -214,7 +228,7 @@
                 const p = papersDB[pid];
                 if(p){
                     const item = document.createElement('div'); item.className = 'paper-item';
-                    item.innerHTML = `<div class="paper-num">${pid}</div><div style="flex:1"><strong>${p.title}</strong> <span style="font-size:0.7rem;color:#5f7f9e;">(${p.year})</span><div style="font-size:0.75rem;margin:4px 0">${p.desc}</div><a href="${getPdfUrl(pid)}" target="_blank" class="pdf-btn"><i class="fas fa-file-pdf"></i> PDF</a></div>`;
+                    item.innerHTML = `<div class="paper-num">${pid}</div><div style="flex:1"><strong>${p.title}</strong> <span style="font-size:0.7rem;color:#5f7f9e;">(${p.year})</span><div style="font-size:0.75rem;margin:4px 0">${p.desc}</div>${renderPaperActions(pid, p)}</div>`;
                     listDiv.appendChild(item);
                 }
             });
